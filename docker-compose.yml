@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  substrate-node:
+    build: .
+    ports:
+      - "9944:9944"
+    command: >
+      ./target/release/node-template
+      --dev
+      --ws-external
+    volumes:
+      - .:/usr/src/app

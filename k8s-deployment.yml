@@ -1,0 +1,33 @@
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+     name: substrate-node
+   spec:
+     replicas: 3
+     selector:
+       matchLabels:
+         app: substrate-node
+     template:
+       metadata:
+         labels:
+           app: substrate-node
+       spec:
+         containers:
+           - name: substrate-node
+             image: gcr.io/YOUR_PROJECT_ID/substrate-node:latest
+             ports:
+               - containerPort: 9944
+             args: ["--dev", "--ws-external"]
+   ---
+   apiVersion: v1
+   kind: Service
+   metadata:
+     name: substrate-node-service
+   spec:
+     selector:
+       app: substrate-node
+     ports:
+       - protocol: TCP
+         port: 9944
+         targetPort: 9944
+     type: LoadBalancer

@@ -1,16 +1,71 @@
 # DogeXLabs REVM Node
 
----
-title: Linux development environment
-description: Set up a local development environment for Substrate on Linux.
-keywords:
----
+DogeXLabs Layer 2 presents a cutting-edge computational layer architecture for Dogecoin, aimed at overcoming scalability challenges and smart contract limitations while upholding the security of the Dogecoin network. This whitepaper introduces the DogeVM paradigm, Layered Virtual Machine technology, and a trustless cross-chain bridge mechanism to enhance the functionality and efficiency of the Dogecoin ecosystem.
 
-Rust supports most Linux distributions.
-Depending on the specific distribution and version of the operating system you use, you might need to add some software dependencies to your environment.
-In general, your development environment should include a linker or C-compatible compiler such as `clang` and an appropriate integrated development environment (IDE).
+## Getting Started with Docker & Google Cloud
 
-## Before you begin
+### Build and Run the Container Locally
+
+You can build and run the container locally to ensure everything is working correctly.
+
+```bash
+# Build the Docker image
+docker-compose build
+
+# Run the Docker container
+docker-compose up
+```
+
+### Deploy to Google Cloud
+
+To deploy the Docker container on Google Cloud, you'll use Google Kubernetes Engine (GKE). Here are the steps:
+
+1. **Set up Google Cloud SDK**: Install and initialize the Google Cloud SDK.
+
+2. **Create a GKE Cluster**:
+   
+   ```bash
+   gcloud container clusters create substrate-cluster --num-nodes=3
+   ```
+
+3. **Build and Push Docker Image to Google Container Registry (GCR)**:
+   
+   Tag the Docker image:
+   
+   ```bash
+   docker tag substrate-node gcr.io/YOUR_PROJECT_ID/substrate-node:latest
+   ```
+   
+   Authenticate with GCR:
+   
+   ```bash
+   gcloud auth configure-docker
+   ```
+   
+   Push the image to GCR:
+   
+   ```bash
+   docker push gcr.io/YOUR_PROJECT_ID/substrate-node:latest
+   ```
+
+4. **Deploy the Docker Image to GKE**:
+
+   Deploy to GKE:
+
+   ```bash
+   kubectl apply -f k8s-deployment.yml
+   ```
+
+### Summary
+
+This setup includes:
+- A Dockerfile to build the Substrate node.
+- A Docker Compose file to manage local deployments.
+- Instructions to deploy on Google Cloud using GKE.
+
+Make sure to replace `YOUR_PROJECT_ID` with your actual Google Cloud project ID.
+
+## Getting Started with Linux
 
 Check the documentation for your operating system for information about the packages that are installed and how to download and install any additional packages you might need.
 For example, if you use Ubuntu, you can use the Ubuntu Advanced Packaging Tool (`apt`) to install the `build-essential` package:
@@ -27,7 +82,7 @@ clang curl git make
 
 Because the blockchain requires standard cryptography to support the generation of public/private key pairs and the validation of transaction signatures, you must also have a package that provides cryptography, such as `libssl-dev` or `openssl-devel`.
 
-## Install required packages and Rust
+### Install required packages and Rust
 
 To install the Rust toolchain on Linux:
 
@@ -131,7 +186,7 @@ To install the Rust toolchain on Linux:
    rustc 1.65.0-nightly (34a6cae28 2022-08-09)
    ```
 
-## Build & Run
+### Build & Run
 
 To build the chain, execute the following commands from the project root:
 
@@ -139,7 +194,7 @@ To build the chain, execute the following commands from the project root:
 $ cargo build --release
 ```
 
-## Generate your account and keys
+### Generate your account and keys
 
 In [Simulate a network](/tutorials/build-a-blockchain/simulate-network/), you started peer nodes using predefined accounts and keys.
 For this tutorial, you generate your own secret keys for the validator nodes in the network.
@@ -230,7 +285,7 @@ For illustration purposes, the second set of keys used in this tutorial are:
 - Sr25519: 5EJPj83tJuJtTVE2v7B9ehfM7jNT44CBFaPWicvBwYyUKBS6 for `aura`.
 - Ed25519: 5FeJQsfmbbJLTH1pvehBxrZrT5kHvJFj84ZaY5LK7NU87gZS for `grandpa`.
 
-## Create a custom chain specification
+### Create a custom chain specification
 
 After you generate the keys to use with your blockchain, you are ready to create a custom **chain specification** using those key pairs then share your custom chain specification with trusted network participants called **validators**.
 
@@ -350,7 +405,7 @@ If two validators have the same keys, they produce conflicting blocks.
 
 For additional information about working with key pairs and signatures, see [Public-Key cryptography](/learn/cryptography/#public-key-cryptography).
 
-## Convert the chain specification to raw format
+### Convert the chain specification to raw format
 
 After you prepare a chain specification with the validator information, you must convert it into a raw specification format before it can be used.
 The raw chain specification includes the same information as the unconverted specification.
@@ -369,7 +424,7 @@ To convert a chain specification to use the raw format:
    ./target/release/frontier-template-node build-spec --chain=customSpec.json --raw --disable-default-bootnode > customSpecRaw.json
    ```
 
-## Prepare to launch the private network
+### Prepare to launch the private network
 
 After you distribute the custom chain specification to all network participants, you're ready to launch your own private blockchain.
 The steps are similar to the steps you followed in [Start the first blockchain node](/tutorials/build-a-blockchain/simulate-network/#Start-the-first-blockchain-node).
@@ -383,7 +438,7 @@ To continue, verify the following:
 
 If you have completed these steps, you are ready to start the first node in the private blockchain.
 
-## Start the first node
+### Start the first node
 
 As the first participant in the private blockchain network, you are responsible for starting the first node, called the **bootnode**.
 
@@ -424,7 +479,7 @@ Note the following command-line options you are using to start the node:
 This command also starts the node using your own keys instead of a predefined account.
 Because you aren't using a predefined account with known keys, you'll need to add your keys to the keystore in a separate step.
 
-## View information about node operations
+### View information about node operations
 
 After you start the local node, information about the operations performed is displayed in the terminal shell.
 In that terminal, verify that you see output similar to the following:
@@ -464,7 +519,7 @@ The values in your output will be specific to your node and you must provide the
 Now that you have successfully started a validator node using your own keys and taken note of the node identity, you can continue to the next step.
 Before you add your keys to the keystore, however, stop the node by pressing Control-c.
 
-## Add keys to the keystore
+### Add keys to the keystore
 
 After you start the first node, no blocks are yet produced.
 The next step is to add two types of keys to the keystore for each node in the network.
@@ -552,7 +607,7 @@ To insert keys into the keystore:
 
 After you have added your keys to the keystore for the first node under /tmp/node01, you can restart the node using the command you used previously in [Start the first node](#start-the-first-node).
 
-## Enable other participants to join
+### Enable other participants to join
 
 You can now allow other validators to join the network using the `--bootnodes` and `--validator` command-line options.
 
